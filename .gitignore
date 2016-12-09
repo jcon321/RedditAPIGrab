@@ -1,0 +1,5 @@
+# ignore target folders
+target/
+
+# ignore NB config files
+nb-configuration.xml
