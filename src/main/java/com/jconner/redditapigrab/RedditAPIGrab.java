@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -33,7 +35,7 @@ public class RedditAPIGrab {
     public List<RedditJSONPost> getTopFromSpecificSubReddit(String subreddit) {
         List<RedditJSONPost> result = new ArrayList<>();
         try {
-            URL url = new URL("https://www.reddit.com/r/"+ subreddit +"/top.json?sort=top&t=all");
+            URL url = new URL("https://www.reddit.com/r/" + subreddit + "/top.json?sort=top&t=all");
             URLConnection conn = url.openConnection();
             conn.setRequestProperty("User-Agent", "jconner - Reddit API");
             InputStream is = conn.getInputStream();
@@ -63,8 +65,8 @@ public class RedditAPIGrab {
         return (result);
     }
 
-    public List<RedditJSONPostComment> getCommentsFromEachPost(RedditJSONPost post) {
-        List<RedditJSONPostComment> result = new ArrayList<>();
+    public List<String> getCommentsFromEachPost(RedditJSONPost post) {
+        List<String> result = new ArrayList<>();
 
         // remove ending / and add .json to end
         String commentsURL = post.getPermalink().substring(0, post.getPermalink().length() - 1) + ".json";
@@ -76,20 +78,15 @@ public class RedditAPIGrab {
             InputStream is = conn.getInputStream();
             String isAsString = StringUtilities.getStringFromInputStream(is);
 
-            Object obj = JSONValue.parse(isAsString);
-            JSONArray redditJSON = (JSONArray) obj;
-            JSONObject redditJSONData = (JSONObject) ((JSONObject) redditJSON.get(1)).get("data");
-            JSONArray redditJSONDataChildren = (JSONArray) redditJSONData.get("children");
-
-            for (int x = 0; x < redditJSONDataChildren.size(); x++) {
-                JSONObject redditJSONDataChildrenData = (JSONObject) 
-                        ((JSONObject) redditJSONDataChildren.get(x)).get("data");
-                RedditJSONPostComment comment = new RedditJSONPostComment();
-                comment.setAuthor(redditJSONDataChildrenData.get("author").toString());
-                comment.setBody(redditJSONDataChildrenData.get("body").toString());
-                
-                result.add(comment);
+            // grab all strings in between "body": and "edited":
+            // not worried about order of comments so not parsing json
+            Pattern p = Pattern.compile("\\\"body\":(.*?)\\\"edited\":");
+            Matcher m = p.matcher(isAsString);
+            
+            while (m.find()) {
+                result.add(m.group(1));
             }
+            
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Exception: ", e);
         }

@@ -19,7 +19,7 @@ public class RedditJSONPost {
     private String permalink;   // comments link
     private String url;         // content (image)
     
-    private List<RedditJSONPostComment> comments = new ArrayList<>();
+    private List<String> comments = new ArrayList<>();
 
     public RedditJSONPost() {
 
@@ -57,11 +57,11 @@ public class RedditJSONPost {
         this.url = url;
     }
 
-    public List<RedditJSONPostComment> getComments() {
+    public List<String> getComments() {
         return comments;
     }
 
-    public void setComments(List<RedditJSONPostComment> comments) {
+    public void setComments(List<String> comments) {
         this.comments = comments;
     }
 

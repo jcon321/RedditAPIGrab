@@ -7,6 +7,8 @@ package com.jconner.controller;
 
 import com.jconner.redditapigrab.RedditAPIGrab;
 import com.jconner.redditapigrab.RedditJSONPost;
+import com.jconner.wordcloud.WordCloudGenerator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import org.springframework.boot.SpringApplication;
@@ -33,6 +35,10 @@ public class Controller {
         for (RedditJSONPost post : topFromArchitecturePosts) {
             post.setComments(rAPI.getCommentsFromEachPost(post));
         }
+        
+
+        WordCloudGenerator wcGen = new WordCloudGenerator(topFromArchitecturePosts.get(0).getComments());
+        wcGen.generateWordCloud();
         
         return "";
     }
